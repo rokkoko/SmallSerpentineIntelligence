@@ -9,7 +9,7 @@ message = 'Червяки: Егор 1, Саша 5, Сергей 0, Юля 3'
 
 # print(parseMessage(message))
 
-def parseMessage(message):
+def parse_message(message):
   message = message.split(':')
   game_name = message[0]
   score_pairs_list = str[1].strip().split(', ')
