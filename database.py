@@ -1,8 +1,14 @@
+import os
 import psycopg2
 
+"""
+Данные для подключения берем из .env файла, чтобы не хранить их в открытом виде в коде. https://docs.repl.it/repls/secret-keys
+"""
 conn = psycopg2.connect(
-  dbname="d41srmguprhtik", 
-  user="bofqupfuidgrlw", password="33f8bfd36c8442f922f519a7725c9fd8fcae6f9715c64957c72d6976130a65dd", sslmode='require', host='ec2-52-48-65-240.eu-west-1.compute.amazonaws.com')
+  dbname=os.getenv("DB_NAME"), 
+  user=os.getenv("DB_USER"),
+  password=os.getenv("DB_PASSWORD"),
+  sslmode='require', host=os.getenv("DB_HOST"))
 
 cur = conn.cursor()
 

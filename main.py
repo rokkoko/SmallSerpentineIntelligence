@@ -1,11 +1,8 @@
+import os
+from replit import db
 from flask import Flask
 from flask import request
 import requests
-
-"""
-Событие stats_updated нужно отправлять на этот урл в сервисе IFTTT, и он перешлет его в Телеграм
-"""
-IFTTT_TELEGRAM_BOT_URL = 'https://maker.ifttt.com/trigger/stats_updated/with/key/m8lqTaJGTj7KTRQK-cxwEg_C8n_a5MnIkae1FO1xRd8'
 
 app = Flask('app')
 
@@ -14,20 +11,22 @@ def process_bot_message():
   """
   TODO Здесь приходит запрос вида {"value": "Червяки: Егор 1, Саша 5, Сергей 0"}. Нам нужно достать строку из value, и распарсить ее с помощью parse_message, чтобы можно было подготовить данные для запросов в базу данных.
   """
-  return str(request.get_json())
-
-  #return 'done'
+  request.get_json()
+  
+  
+  # db["egor"] += int(request.form["egor"])
+  # return str(db["egor"])
 
 
 def post_response_to_telegram(data):
   """
   Когда мы подготовили все данные для отправки и сохранили их в базу данных, этой функцией можно послать ответ в Телеграм. Ответ здесь должен быть подготовленной строкой со вставленными данными  
   """
-  requests.post(url=IFTTT_TELEGRAM_BOT_URL, data=data)
+  requests.post(url=os.getenv("IFTTT_TELEGRAM_BOT_URL"), data=data)
 
 
 #-----------------------------------------------------------------------------------------
-from replit import db
+
 
 
 @app.route('/stat', methods=['GET', 'POST'])
