@@ -1,6 +1,6 @@
 import os
 import psycopg2
-import parse_message as parse
+import parse_message
 from flask import request
 import datetime as date
 """
@@ -56,8 +56,8 @@ SELECT SUM(score) FROM scores WHERE user_id = 1;
 # {"value": "Червяки: Егор 1, Саша 5, Сергей 0"}
 # parse.parseMessage()  - [0] - game_name, [1] - dict_with_stats
 
-game_name = parse.parse_message(request.form['value'])[0]
-stats = parse.parseMessage(request.form['value'])[1]
+game_name = parse_message.parse(request.form['value'])[0]
+stats = parse_message.parse(request.form['value'])[1]
 
 # Для добавление строки в таблицы gamers и games необходимо проверить является ли игра/игрок новыми для БД. Для этого используем "множества"
 
