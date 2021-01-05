@@ -18,39 +18,6 @@ cur = conn.cursor()
 cur.execute("SELECT score, game_session_id FROM scores;")
 
 print(cur.fetchall())
-"""
-CREATE TABLE games (
-	id BIGINT PRIMARY KEY generated always as identity,
-	game_name VARCHAR(255));
-
-CREATE TABLE users (
-	id BIGINT PRIMARY KEY generated always as identity,
-	user_name VARCHAR(255));
-
-CREATE TABLE game_sessions (
-	id BIGINT PRIMARY KEY generated always as identity,
-	created_at TIMESTAMP,
-	game_id BIGINT REFERENCES games);
-
-CREATE TABLE scores (
-	game_session_id BIGINT REFERENCES game_sessions,
-	user_id BIGINT REFERENCES users,
-	score BIGINT);
-
-INSERT INTO users (user_name) VALUES ('Sergey'), ('Egor'), ('Sasha');
-
-INSERT INTO games (game_name) VALUES ('Chervaki');
-
-INSERT INTO game_sessions (game_id, created_at) VALUES (1, '2021-01-03 10:10:10+1');
-
-INSERT INTO scores (game_session_id, user_id, score) VALUES (1, 1, 2), (1, 2, 1), (1, 3, 4);
-
-INSERT INTO game_sessions (game_id, created_at) VALUES (1, '2021-01-01 14:12:36+1');
-
-INSERT INTO scores (game_session_id, user_id, score) VALUES (2, 1, 5), (2, 2, 3), (2, 3, 1);
-
-SELECT SUM(score) FROM scores WHERE user_id = 1;
-"""
 
 #---------------------------------------------
 # {"value": "Червяки: Егор 1, Саша 5, Сергей 0"}
@@ -62,10 +29,6 @@ stats = parse_message.parse(request.form['value'])[1]
 # Для добавление строки в таблицы gamers и games необходимо проверить является ли игра/игрок новыми для БД. Для этого используем "множества"
 
 # https://stackoverflow.com/questions/5247685/python-postgres-psycopg2-getting-id-of-row-just-inserted
-
-
-def counter():
-	pass
 
 
 games = []
