@@ -1,1 +1,2 @@
-run="pytest testrunner.py"
+# run="pytest testrunner.py"
+run="python main.py"
