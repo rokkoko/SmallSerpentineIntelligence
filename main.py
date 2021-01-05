@@ -4,6 +4,24 @@ from flask import Flask
 from flask import request
 import requests
 
+@app.route('/stat', methods=['GET', 'POST'])
+def income():
+  result = {}
+  if request.method == "GET":
+    #    return dict(request.args) - dict from querystring
+    #    return dict(request.args.lists()) - dict with multiple values for 'key'
+    for key, value in request.args.items():
+        #       INSERT INTO __table__ (__name_of_coloumn - keys, ...) VALUES(__value_of_coloumn__ - values, ...);
+      result[key] = result.setdefault(key, 0) + int(value)
+      db[key] = result[key]
+  if request.method == "POST":
+    users = ['egor', 'alex', 'sergio']
+    for user in users:
+      result[user] = request.form[user]
+      db[user] = result[user]
+
+
+  return str(db['egor'])
 
 app = Flask('app')
 
@@ -35,24 +53,7 @@ def post_response_to_telegram(data):
 
 
 
-@app.route('/stat', methods=['GET', 'POST'])
-def income():
-  result = {}
-  if request.method == "GET":
-    #    return dict(request.args) - dict from querystring
-    #    return dict(request.args.lists()) - dict with multiple values for 'key'
-    for key, value in request.args.items():
-        #       INSERT INTO __table__ (__name_of_coloumn - keys, ...) VALUES(__value_of_coloumn__ - values, ...);
-      result[key] = result.setdefault(key, 0) + int(value)
-      db[key] = result[key]
-  if request.method == "POST":
-    users = ['egor', 'alex', 'sergio']
-    for user in users:
-      result[user] = request.form[user]
-      db[user] = result[user]
 
-
-  return str(db['egor'])
 
 
 # request.post['Sergey']  - value for SERGEY in form
