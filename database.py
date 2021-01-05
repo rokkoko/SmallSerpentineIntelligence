@@ -31,29 +31,26 @@ stats = parse_message.parse(request.form['value'])[1]
 # https://stackoverflow.com/questions/5247685/python-postgres-psycopg2-getting-id-of-row-just-inserted
 
 
-games = []
-gamers = []
-games_session = []
 
-if game_name not in games:
-	games.append(game_name)
-	cur.execute("INSERT INTO games (name) VALUE (%s)", (game_name))
+def adding_game_into_db(game):
+  """Adding game to DB and return it's id from table. If game already in db - pass this step and print error message"""
+  try:
+    cur.execute("INSERT INTO games (game_name) VALUES (%(game)s);", {'game': game})
+    conn.commit()
+  except:
+    print('game already in DB')
+    conn.commit()
+  cur.execute("SELECT id FROM games WHERE game_name = (%(game)s);", {'game': game})
+  return cur.fetchone()[0]
 
-for gamer in stats.keys():
-	if gamer not in gamers:
-		gamers.append(gamer)
-		cur.execute("INSERT INTO gamers (name) VALUE (%s)", (gamer))
 
-cur.execute(
-    "INSERT INTO game_session (created_at, game_id) VALUES (%s, %s)",
-    (date.datetime.now(), games.index(game_name) + 1)
-)  # сложность с автоматизацией записи id игры в связанную таблицу game_session. Нужно или помомнить id игры или использовать словарь/кортеж с индексами из enumerate/[].index из списка +1 (индексация начинается с 0)/
-
-# Как увязать id сессии с конкретным сеансом записи статистик в scores?
-for gamer in stats.keys():
-	cur.execute(
-	    "INSERT INTO scores (game_session_id, user_id, scores) VALUES (%s, %s, %s)",
-	    (
-	        # session_id??,
-	        gamers.index(gamer) + 1,
-	        stats[gamer]))
+def adding_user_into_db(user:str):
+  """Adding user to DB and return it's id from table. If user already in db - pass this step and print error message"""
+  try:
+    cur.execute("INSERT INTO users (user_name) VALUES (%(user)s);", {'user': user})
+    conn.commit()
+  except:
+    print('user already in DB')
+    conn.commit()
+  cur.execute("SELECT id FROM users WHERE user_name = (%(user)s);", {'user': user})
+  return cur.fetchone()[0]
