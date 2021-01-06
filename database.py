@@ -53,10 +53,10 @@ def add_users_into_db(users: dict):
     for user in users.keys():
         try:
             cur.execute("INSERT INTO users (user_name) VALUES (%(user)s);", {'user': user})
-            conn.commit()
             print(f'{user} added to DB')
         except:
             print(f'{user} already in DB')
+        finally:
             conn.commit()
     cur.execute("SELECT id FROM users WHERE user_name IN %s;", (tuple([key for key in users.keys()]),))
     return cur.fetchall()
