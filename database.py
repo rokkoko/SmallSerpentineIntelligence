@@ -44,13 +44,19 @@ def adding_game_into_db(game):
   return cur.fetchone()[0]
 
 
-def adding_user_into_db(user:str):
-  """Adding user to DB and return it's id from table. If user already in db - pass this step and print error message"""
-  try:
-    cur.execute("INSERT INTO users (user_name) VALUES (%(user)s);", {'user': user})
-    conn.commit()
-  except:
-    print('user already in DB')
-    conn.commit()
-  cur.execute("SELECT id FROM users WHERE user_name = (%(user)s);", {'user': user})
-  return cur.fetchone()[0]
+def adding_users_into_db(users: dict):
+    """
+    Adding seq of users to DB and return it's id from table. If user already in db - pass this step and print error
+    message.
+    """
+    for user in users.keys():
+        try:
+            cur.execute("INSERT INTO users (user_name) VALUES (%(user)s);", {'user': user})
+            conn.commit()
+            print(f'{user} added to DB')
+        except:
+            print(f'{user} already in DB')
+            conn.commit()
+    cur.execute("SELECT id FROM users WHERE user_name IN %s;", (tuple([key for key in users.keys()]),))
+    return cur.fetchall()
+
