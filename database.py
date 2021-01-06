@@ -60,3 +60,20 @@ def adding_users_into_db(users: dict):
     cur.execute("SELECT id FROM users WHERE user_name IN %s;", (tuple([key for key in users.keys()]),))
     return cur.fetchall()
 
+
+def adding_game_session_into_db(game_id):
+    """
+    Adding game_session to DB and return it's id from table
+    :param game_id: from func adding_game_into_db() from func parseMessage()
+    :return: id of current game_session from db
+    """
+    cur.execute(
+        "INSERT INTO game_sessions (created_at, game_id) VALUES (%(date)s, %(game_id)s);",
+        {
+            'date': date.datetime.now(),
+            'game_id': game_id
+        }
+    )
+    conn.commit()
+    cur.execute("SELECT id FROM game_sessions WHERE game_id = (%s);", (game_id,))
+    return cur.fetchall()[-1]
