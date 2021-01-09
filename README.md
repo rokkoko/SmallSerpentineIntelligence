@@ -1,3 +1,5 @@
+[![Actions Status](https://github.com/aledoroshenko/SmallSerpentineIntelligence/workflows/CI/badge.svg)](https://github.com/aledoroshenko/SmallSerpentineIntelligence/actions)
+
 # README
 
 Сервер для учета игровой статистики: количество очков, игры, участники.
