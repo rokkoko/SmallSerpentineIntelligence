@@ -40,4 +40,4 @@ jobs:
           poetry install
       - name: Lint with flake8
         run: |
-          poetry run flake8
+          flake8
