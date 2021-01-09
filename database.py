@@ -14,6 +14,7 @@ conn = psycopg2.connect(
     sslmode='require',
     host=os.getenv("DB_HOST"))
 
+conn.autocommit = True
 cur = conn.cursor()
 
 cur.execute("SELECT score, game_session_id FROM scores;")
@@ -41,10 +42,8 @@ def add_game_into_db(game):
     """
     try:
         cur.execute("INSERT INTO games (game_name) VALUES (%(game)s);", {'game': game})
-        conn.commit()
     except:
         print('game already in DB')
-        conn.commit()
     cur.execute("SELECT id FROM games WHERE game_name = (%(game)s);", {'game': game})
     return cur.fetchone()[0]
 
@@ -60,10 +59,8 @@ def add_users_into_db(users: dict):
             print(f'{user} added to DB')
         except:
             print(f'{user} already in DB')
-        finally:
-            conn.commit()
     cur.execute("SELECT id FROM users WHERE user_name IN %s;", (tuple([key for key in users.keys()]),))
-    return cur.fetchall() # ЗДЕСЬ ВОЗВРАЩАЕТСЯ ПОСЛЕДОВАТЕЛЬНОСТЬ ID ПО ВОЗРАСТАНИЮ
+    return cur.fetchall()
 
 
 def add_game_session_into_db(game_id):
@@ -79,7 +76,6 @@ def add_game_session_into_db(game_id):
             'game_id': game_id
         }
     )
-    conn.commit()
     cur.execute("SELECT id FROM game_sessions WHERE game_id = (%s);", (game_id,))
     return cur.fetchall()[-1][0]
 
@@ -89,13 +85,16 @@ def add_scores(game_session_id, users_id, scores):
     :param user_id: from func add_users_into_db() from func parseMessage()
     :return: id of current game_session from db
     """
-    for id, user_name in zip(users_id, scores.keys()):#TODO сопоставления двух последовательностей, т.к. users_id возвращается из add_users ВСЕГДА в порядке возрастания, a scores.keys - из распарсенного сообщения как есть!!
+    for id in users_id:
         cur.execute(
-            "INSERT INTO scores (game_session_id, user_id, score) VALUES (%(session_id)s, %(user_id)s, %(score)s);",
+            "SELECT user_name FROM users WHERE id = %s;", (id[0],)
+        )
+        user_name = cur.fetchone()[0]
+        cur.execute(
+            "INSERT INTO scores VALUES (%(session_id)s, %(user_id)s, %(score)s);",
             {
                 "session_id": game_session_id,
                 "user_id": id[0],
                 "score": scores[user_name],
             }
         )
-        conn.commit()
