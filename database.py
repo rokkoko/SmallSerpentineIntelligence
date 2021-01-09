@@ -31,11 +31,6 @@ game = parse.parse_message(incoming_message)[0]
 scores_dict = parse.parse_message(incoming_message)[1]
 
 
-# Для добавление строки в таблицы gamers и games необходимо проверить является ли игра/игрок новыми для БД. Для этого используем "множества"
-
-# https://stackoverflow.com/questions/5247685/python-postgres-psycopg2-getting-id-of-row-just-inserted
-
-
 def add_game_into_db(game):
     """
     Adding game to DB and return it's id (int) from table. If game already in db - pass this step and print error message
@@ -53,12 +48,20 @@ def add_users_into_db(users: dict):
     Adding seq of users to DB and return it's id from table. If user already in db - pass this step and print error
     message.
     """
+    cur.execute(
+        "SELECT user_name FROM users"
+    )
+    present_users_list_raw = cur.fetchall()
+    present_users_list_clean = []
+    for elem in present_users_list_raw:
+        present_users_list_clean.append(elem[0])
     for user in users.keys():
-        try:
+        if user in present_users_list_clean:
+            print(f'{user} already in DB')
+            continue
+        else:
             cur.execute("INSERT INTO users (user_name) VALUES (%(user)s);", {'user': user})
             print(f'{user} added to DB')
-        except:
-            print(f'{user} already in DB')
     cur.execute("SELECT id FROM users WHERE user_name IN %s;", (tuple([key for key in users.keys()]),))
     return cur.fetchall()
 
