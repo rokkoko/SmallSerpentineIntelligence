@@ -37,7 +37,7 @@ jobs:
           pip install flake8
           pip install pytest
           pip install pytest-cov
-          make install
+          poetry install
       - name: Lint with flake8
         run: |
-          make lint
+          poetry run flake8 SmallSerpentineIntellligence
