@@ -105,3 +105,15 @@ def add_scores(game_session_id, users_id, scores):
                 "score": scores[user_name],
             }
         )
+
+
+def updated_add_game_into_db(cursor, game):
+    """
+    Adding game to DB and return it's id (int) from table. If game already in db - pass this step and print error message
+    """
+    try:
+        cursor.execute("INSERT INTO games (game_name) VALUES (%(game)s);", {'game': game})
+    except:
+        print('game already in DB')
+    cursor.execute("SELECT id FROM games WHERE game_name = (%(game)s);", {'game': game})
+    return cursor.fetchone()[0]
