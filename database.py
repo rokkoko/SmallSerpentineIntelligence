@@ -19,11 +19,9 @@ conn = psycopg2.connect(
     host=os.getenv("DB_HOST"))
 
 conn.autocommit = True
-cur = conn.cursor()
 
-cur.execute("SELECT score, game_session_id FROM scores;")
 
-print(cur.fetchall())
+
 
 # ---------------------------------------------
 # {"value": "Червяки: Егор 1, Саша 5, Сергей 0"}
@@ -35,7 +33,7 @@ game = parse.parse_message(incoming_message)[0]
 scores_dict = parse.parse_message(incoming_message)[1]
 
 
-def add_game_into_db(game):
+def add_game_into_db(game, cur=conn.cursor()):
     """
     Adding game to DB and return it's id (int) from table. If game already in db - pass this step and print error message
     """
@@ -58,7 +56,7 @@ def add_game_into_db(game):
 game_id = add_game_into_db(game)
 
 
-def add_users_into_db(users: dict):
+def add_users_into_db(users: dict, cur=conn.cursor()):
     """
     Adding seq of users to DB and return it's id from table. If user already in db - pass this step and print error
     message.
@@ -81,7 +79,7 @@ def add_users_into_db(users: dict):
     return cur.fetchall()
 
 
-def add_game_session_into_db(game_id):
+def add_game_session_into_db(game_id, cur=conn.cursor()):
     """
     Adding game_session to DB and return it's id from table
     :param game_id: from func add_game_into_db() from func parseMessage()
@@ -97,7 +95,7 @@ def add_game_session_into_db(game_id):
     cur.execute("SELECT id FROM game_sessions WHERE game_id = (%s);", (game_id,))
     return cur.fetchall()[-1][0]
 
-def add_scores(game_session_id, users_id, scores, game_id):
+def add_scores(game_session_id, users_id, scores, game_id, cur=conn.cursor()):
     """
     Add scores to DB and return SUM of scores for current game in current game_session
     :param game_session_id: from func add_game_session_into_db()
@@ -125,6 +123,6 @@ def add_scores(game_session_id, users_id, scores, game_id):
         )
         result_msg_dict[user_name] = int(cur.fetchone()[0])
     print(result_msg_dict)
-    return(result_msg_dict)
+    return {'value1': str(result_msg_dict)}
 
 add_scores(add_game_session_into_db(game_id), add_users_into_db(scores_dict), scores_dict, game_id)
