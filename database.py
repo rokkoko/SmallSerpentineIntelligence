@@ -86,12 +86,16 @@ def add_game_session_into_db(game_id):
     cur.execute("SELECT id FROM game_sessions WHERE game_id = (%s);", (game_id,))
     return cur.fetchall()[-1][0]
 
-def add_scores(game_session_id, users_id, scores):
+def add_scores(game_session_id, users_id, scores, game_id):
     """
-    Adding score to DB and return SUM of scores for current game
-    :param user_id: from func add_users_into_db() from func parseMessage()
-    :return: id of current game_session from db
+    Add scores to DB and return SUM of scores for current game in current game_session
+    :param game_session_id: from func add_game_session_into_db()
+    :param users_id: from func add_users_into_db()
+    :param scores: from func parseMessage()
+    :param game_id: from func parseMessage()
+    :return: dict-type message with stats for users in game from income-message. Print message.
     """
+    result_msg_dict = dict()
     for id in users_id:
         cur.execute(
             "SELECT user_name FROM users WHERE id = %s;", (id[0],)
@@ -105,15 +109,11 @@ def add_scores(game_session_id, users_id, scores):
                 "score": scores[user_name],
             }
         )
+        cur.execute(
+            "SELECT SUM(score) from scores WHERE (game_session_id in (SELECT id FROM game_sessions where game_id = %s) AND user_id = %s);", (game_id, id[0])
+        )
+        result_msg_dict[user_name] = int(cur.fetchone()[0])
+    print(result_msg_dict)
+    return(result_msg_dict)
 
-
-def updated_add_game_into_db(cursor, game):
-    """
-    Adding game to DB and return it's id (int) from table. If game already in db - pass this step and print error message
-    """
-    try:
-        cursor.execute("INSERT INTO games (game_name) VALUES (%(game)s);", {'game': game})
-    except:
-        print('game already in DB')
-    cursor.execute("SELECT id FROM games WHERE game_name = (%(game)s);", {'game': game})
-    return cursor.fetchone()[0]
+add_scores(add_game_session_into_db(game_id), add_users_into_db(scores_dict), scores_dict, game_id)
