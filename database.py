@@ -39,12 +39,23 @@ def add_game_into_db(game):
     """
     Adding game to DB and return it's id (int) from table. If game already in db - pass this step and print error message
     """
-    try:
-        cur.execute("INSERT INTO games (game_name) VALUES (%(game)s);", {'game': game})
-    except:
-        print('game already in DB')
+    cur.execute(
+        "SELECT game_name FROM games"
+    )
+    present_games_list_raw = cur.fetchall()
+    present_games_list_clean = []
+    for elem in present_games_list_raw:
+        present_games_list_clean.append(elem[0])
+    if game in present_games_list_clean:
+        print(f'game {game} already in DB')
+    else:
+        cur.execute(
+            "INSERT INTO games (game_name) VALUES (%(game)s);", {'game': game}
+        )
     cur.execute("SELECT id FROM games WHERE game_name = (%(game)s);", {'game': game})
     return cur.fetchone()[0]
+
+game_id = add_game_into_db(game)
 
 
 def add_users_into_db(users: dict):
