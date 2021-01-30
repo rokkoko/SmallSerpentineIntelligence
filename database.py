@@ -2,7 +2,6 @@ from dotenv import load_dotenv
 import os
 import psycopg2
 import parse_message as parse
-from flask import request
 import datetime as date
 
 # Use environment variables from .env file
@@ -21,22 +20,11 @@ conn = psycopg2.connect(
 conn.autocommit = True
 
 
-
-
-# ---------------------------------------------
-# {"value": "Червяки: Егор 1, Саша 5, Сергей 0"}
-# parse.parseMessage()  - [0] - game_name, [1] - dict_with_stats
-
-incoming_message = {'value': 'Basket: Bari 500, Sergio 100, Julia 200'}
-
-game = parse.parse_message(incoming_message)[0]
-scores_dict = parse.parse_message(incoming_message)[1]
-
-
-def add_game_into_db(game, cur=conn.cursor()):
+def add_game_into_db(game):
     """
     Adding game to DB and return it's id (int) from table. If game already in db - pass this step and print error message
     """
+    cur = conn.cursor()
     cur.execute(
         "SELECT game_name FROM games"
     )
@@ -53,14 +41,13 @@ def add_game_into_db(game, cur=conn.cursor()):
     cur.execute("SELECT id FROM games WHERE game_name = (%(game)s);", {'game': game})
     return cur.fetchone()[0]
 
-game_id = add_game_into_db(game)
 
-
-def add_users_into_db(users: dict, cur=conn.cursor()):
+def add_users_into_db(score_pairs):
     """
     Adding seq of users to DB and return it's id from table. If user already in db - pass this step and print error
     message.
     """
+    cur = conn.cursor()
     cur.execute(
         "SELECT user_name FROM users"
     )
@@ -68,23 +55,24 @@ def add_users_into_db(users: dict, cur=conn.cursor()):
     present_users_list_clean = []
     for elem in present_users_list_raw:
         present_users_list_clean.append(elem[0])
-    for user in users.keys():
+    for user in score_pairs.keys():
         if user in present_users_list_clean:
             print(f'{user} already in DB')
             continue
         else:
             cur.execute("INSERT INTO users (user_name) VALUES (%(user)s);", {'user': user})
             print(f'{user} added to DB')
-    cur.execute("SELECT id FROM users WHERE user_name IN %s;", (tuple([key for key in users.keys()]),))
+    cur.execute("SELECT id FROM users WHERE user_name IN %s;", (tuple([key for key in score_pairs.keys()]),))
     return cur.fetchall()
 
 
-def add_game_session_into_db(game_id, cur=conn.cursor()):
+def add_game_session_into_db(game_id):
     """
     Adding game_session to DB and return it's id from table
     :param game_id: from func add_game_into_db() from func parseMessage()
     :return: id (int) of current game_session from db
     """
+    cur = conn.cursor()
     cur.execute(
         "INSERT INTO game_sessions (created_at, game_id) VALUES (%(date)s, %(game_id)s);",
         {
@@ -95,43 +83,38 @@ def add_game_session_into_db(game_id, cur=conn.cursor()):
     cur.execute("SELECT id FROM game_sessions WHERE game_id = (%s);", (game_id,))
     return cur.fetchall()[-1][0]
 
-def add_scores(incoming_msg, cur=conn.cursor()):
+
+def add_scores(game, score_pairs):
     """
     Add scores to DB and return SUM of scores for current game in current game_session
-    :param game_session_id: from func add_game_session_into_db()
-    :param users_id: from func add_users_into_db()
-    :param scores: from func parseMessage()
-    :param game_id: from func parseMessage()
-    :return: dict-type message with stats for users in game from income-message. Print message.
+    :param game: game to store
+    :param score_pairs: pairs of players and scores
+    :return: done string
     """
-    game = parse.parse_message(incoming_msg)[0]
-    scores_dict = parse.parse_message(incoming_msg)[1]
-
+    cur = conn.cursor()
     game_id = add_game_into_db(game)
     game_session_id = add_game_session_into_db(game_id)
-    users_id = add_users_into_db(scores_dict)
-    scores = scores_dict
-
-
+    users_ids = add_users_into_db(score_pairs)
     result_msg_dict = dict()
-    for id in users_id:
+    for user_id in users_ids:
         cur.execute(
-            "SELECT user_name FROM users WHERE id = %s;", (id[0],)
+            "SELECT user_name FROM users WHERE id = %s;", (user_id[0],)
         )
         user_name = cur.fetchone()[0]
         cur.execute(
             "INSERT INTO scores VALUES (%(session_id)s, %(user_id)s, %(score)s);",
             {
                 "session_id": game_session_id,
-                "user_id": id[0],
-                "score": scores[user_name],
+                "user_id": user_id[0],
+                "score": score_pairs[user_name],
             }
         )
         cur.execute(
-            "SELECT SUM(score) from scores WHERE (game_session_id in (SELECT id FROM game_sessions where game_id = %s) AND user_id = %s);", (game_id, id[0])
+            'SELECT SUM(score) from scores WHERE (game_session_id in (SELECT id FROM game_sessions where game_id = %s) AND user_id = %s);',
+            (game_id, user_id[0])
         )
         result_msg_dict[user_name] = int(cur.fetchone()[0])
     print(result_msg_dict)
-    return {'value1': str(result_msg_dict)}
+    # return {'value1': str(result_msg_dict)}
 
-add_scores(incoming_message)
+    return result_msg_dict
