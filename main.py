@@ -1,8 +1,12 @@
 from flask import Flask
 from flask import request
+from parse_message import parse_message
+from database import add_scores
+import json
+import requests
 
+IFTTT_TELEGRAM_BOT_URL = 'https://maker.ifttt.com/trigger/stats_updated/with/key/m8lqTaJGTj7KTRQK-cxwEg_C8n_a5MnIkae1FO1xRd8'
 
-# We use this function to create app instance for tests
 def create_app():
     app = Flask('stats')
 
@@ -18,9 +22,22 @@ def create_app():
 
         if request.method == "POST":
             data = request.json
-            app.logger.debug('Got data', data)
+            app.logger.debug('Got data', json.dumps(data))
 
-            return data
+            game, score_pairs = parse_message(data)
+            app.logger.debug('Parsed message', game, score_pairs)
+
+            result = add_scores(game, score_pairs)
+
+            post_response_to_telegram(result)
+
+            return 'Done'
+
+    def post_response_to_telegram(data):
+        """
+        Когда мы подготовили все данные для отправки и сохранили их в базу данных, этой функцией можно послать ответ в Телеграм. Ответ здесь должен быть подготовленной строкой со вставленными данными
+        """
+        requests.post(url=IFTTT_TELEGRAM_BOT_URL, data={"value1": str(data)})
 
     return app
 
