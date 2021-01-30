@@ -95,7 +95,7 @@ def add_game_session_into_db(game_id, cur=conn.cursor()):
     cur.execute("SELECT id FROM game_sessions WHERE game_id = (%s);", (game_id,))
     return cur.fetchall()[-1][0]
 
-def add_scores(game_session_id, users_id, scores, game_id, cur=conn.cursor()):
+def add_scores(incoming_msg, cur=conn.cursor()):
     """
     Add scores to DB and return SUM of scores for current game in current game_session
     :param game_session_id: from func add_game_session_into_db()
@@ -104,6 +104,15 @@ def add_scores(game_session_id, users_id, scores, game_id, cur=conn.cursor()):
     :param game_id: from func parseMessage()
     :return: dict-type message with stats for users in game from income-message. Print message.
     """
+    game = parse.parse_message(incoming_msg)[0]
+    scores_dict = parse.parse_message(incoming_msg)[1]
+
+    game_id = add_game_into_db(game)
+    game_session_id = add_game_session_into_db(game_id)
+    users_id = add_users_into_db(scores_dict)
+    scores = scores_dict
+
+
     result_msg_dict = dict()
     for id in users_id:
         cur.execute(
@@ -125,4 +134,4 @@ def add_scores(game_session_id, users_id, scores, game_id, cur=conn.cursor()):
     print(result_msg_dict)
     return {'value1': str(result_msg_dict)}
 
-add_scores(add_game_session_into_db(game_id), add_users_into_db(scores_dict), scores_dict, game_id)
+add_scores(incoming_message)
