@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 import os
 import psycopg2
 import datetime as date
+from parse_message import parse_message
 from checks import negative_score_check
 
 # Use environment variables from .env file

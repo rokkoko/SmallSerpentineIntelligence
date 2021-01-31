@@ -1,7 +1,7 @@
 from flask import Flask
 from flask import request
 from parse_message import parse_message
-from database import add_scores
+from database import add_scores, stats_represent
 import json
 import requests
 
@@ -29,11 +29,15 @@ def create_app():
         if request.method == "POST":
             data = request.json
             app.logger.debug('Got data', json.dumps(data))
+            try:
+                game, score_pairs = parse_message(data)
+            except ValueError:
+                game = parse_message(data)
+                result = stats_represent(game)
+            else:
+                result = add_scores(game, score_pairs)
 
-            game, score_pairs = parse_message(data)
             app.logger.debug('Parsed message', game, score_pairs)
-
-            result = add_scores(game, score_pairs)
 
             post_response_to_telegram(result)
 
