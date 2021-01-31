@@ -5,7 +5,9 @@ from parse_message import parse_message
 def test_parse_message_of_correct_text():
     """Test happy path"""
     text = {"value": "Червяки: Егор 1, Саша 5, Сергей 0, Юля 3"}
-    expected_result = ("Червяки", {"Егор": 1, "Саша": 5, "Сергей": 0, "Юля": 3})
+    expected_result = (
+        "Червяки", {"Егор": 1, "Саша": 5, "Сергей": 0, "Юля": 3}
+    )
     assert parse_message(text) == expected_result
 
 

@@ -9,6 +9,7 @@ IFTTT_TELEGRAM_BOT_URL = 'https://maker.ifttt.com/' \
                          'trigger/stats_updated/with/' \
                          'key/m8lqTaJGTj7KTRQK-cxwEg_C8n_a5MnIkae1FO1xRd8'
 
+
 def create_app():
     app = Flask('stats')
 

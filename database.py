@@ -1,14 +1,13 @@
 from dotenv import load_dotenv
 import os
 import psycopg2
-import parse_message as parse
 import datetime as date
 
 # Use environment variables from .env file
 load_dotenv()
 
 """
-Данные для подключения берем из .env файла, чтобы не хранить их в открытом 
+Данные для подключения берем из .env файла, чтобы не хранить их в открытом
 виде в коде. https://docs.repl.it/repls/secret-keys
 """
 conn = psycopg2.connect(
