@@ -8,7 +8,8 @@ import datetime as date
 load_dotenv()
 
 """
-Данные для подключения берем из .env файла, чтобы не хранить их в открытом виде в коде. https://docs.repl.it/repls/secret-keys
+Данные для подключения берем из .env файла, чтобы не хранить их в открытом 
+виде в коде. https://docs.repl.it/repls/secret-keys
 """
 conn = psycopg2.connect(
     dbname=os.getenv("DB_NAME"),
@@ -22,7 +23,8 @@ conn.autocommit = True
 
 def add_game_into_db(game):
     """
-    Adding game to DB and return it's id (int) from table. If game already in db - pass this step and print error message
+    Adding game to DB and return it's id (int) from table. If game already in
+    db - pass this step and print error message
     """
     cur = conn.cursor()
     cur.execute(
@@ -38,14 +40,16 @@ def add_game_into_db(game):
         cur.execute(
             "INSERT INTO games (game_name) VALUES (%(game)s);", {'game': game}
         )
-    cur.execute("SELECT id FROM games WHERE game_name = (%(game)s);", {'game': game})
+    cur.execute(
+        "SELECT id FROM games WHERE game_name = (%(game)s);", {'game': game}
+    )
     return cur.fetchone()[0]
 
 
 def add_users_into_db(score_pairs):
     """
-    Adding seq of users to DB and return it's id from table. If user already in db - pass this step and print error
-    message.
+    Adding seq of users to DB and return it's id from table. If user already
+    in db - pass this step and print error message.
     """
     cur = conn.cursor()
     cur.execute(
@@ -60,9 +64,15 @@ def add_users_into_db(score_pairs):
             print(f'{user} already in DB')
             continue
         else:
-            cur.execute("INSERT INTO users (user_name) VALUES (%(user)s);", {'user': user})
+            cur.execute(
+                "INSERT INTO users (user_name) VALUES (%(user)s);",
+                {'user': user}
+            )
             print(f'{user} added to DB')
-    cur.execute("SELECT id FROM users WHERE user_name IN %s;", (tuple([key for key in score_pairs.keys()]),))
+    cur.execute(
+        "SELECT id FROM users WHERE user_name IN %s;",
+        (tuple([key for key in score_pairs.keys()]),)
+    )
     return cur.fetchall()
 
 
@@ -74,19 +84,23 @@ def add_game_session_into_db(game_id):
     """
     cur = conn.cursor()
     cur.execute(
-        "INSERT INTO game_sessions (created_at, game_id) VALUES (%(date)s, %(game_id)s);",
+        "INSERT INTO game_sessions (created_at, game_id) "
+        "VALUES (%(date)s, %(game_id)s);",
         {
             'date': date.datetime.now(),
             'game_id': game_id
         }
     )
-    cur.execute("SELECT id FROM game_sessions WHERE game_id = (%s);", (game_id,))
+    cur.execute(
+        "SELECT id FROM game_sessions WHERE game_id = (%s);", (game_id,)
+    )
     return cur.fetchall()[-1][0]
 
 
 def add_scores(game, score_pairs):
     """
-    Add scores to DB and return SUM of scores for current game in current game_session
+    Add scores to DB and return SUM of scores for current game in
+    current game_session
     :param game: game to store
     :param score_pairs: pairs of players and scores
     :return: done string
@@ -102,7 +116,8 @@ def add_scores(game, score_pairs):
         )
         user_name = cur.fetchone()[0]
         cur.execute(
-            "INSERT INTO scores VALUES (%(session_id)s, %(user_id)s, %(score)s);",
+            "INSERT INTO scores VALUES (%(session_id)s, "
+            "%(user_id)s, %(score)s);",
             {
                 "session_id": game_session_id,
                 "user_id": user_id[0],
@@ -110,7 +125,10 @@ def add_scores(game, score_pairs):
             }
         )
         cur.execute(
-            'SELECT SUM(score) from scores WHERE (game_session_id in (SELECT id FROM game_sessions where game_id = %s) AND user_id = %s);',
+            'SELECT SUM(score) from scores WHERE '
+            '(game_session_id in '
+            '(SELECT id FROM game_sessions where game_id = %s) '
+            'AND user_id = %s);',
             (game_id, user_id[0])
         )
         result_msg_dict[user_name] = int(cur.fetchone()[0])
