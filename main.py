@@ -31,7 +31,7 @@ def create_app():
             app.logger.debug('Got data', json.dumps(data))
             try:
                 game, score_pairs = parse_message(data)
-            except ValueError:
+            except (ValueError, TypeError):
                 game = parse_message(data)
                 result = stats_represent(game)
             else:
