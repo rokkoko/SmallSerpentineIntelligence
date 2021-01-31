@@ -3,7 +3,6 @@ import os
 import psycopg2
 import datetime as date
 
-
 # Use environment variables from .env file
 load_dotenv()
 
