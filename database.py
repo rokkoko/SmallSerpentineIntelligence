@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 import os
 import psycopg2
-import datetime as date
+from datetime import datetime
 
 # Use environment variables from .env file
 load_dotenv()
@@ -86,7 +86,7 @@ def add_game_session_into_db(game_id):
         "INSERT INTO game_sessions (created_at, game_id) "
         "VALUES (%(date)s, %(game_id)s);",
         {
-            'date': date.datetime.now(),
+            'date': datetime.now(),
             'game_id': game_id
         }
     )
@@ -132,6 +132,10 @@ def add_scores(game, score_pairs):
         )
         result_msg_dict[user_name] = int(cur.fetchone()[0])
     print(result_msg_dict)
-    # return {'value1': str(result_msg_dict)}
 
-    return result_msg_dict
+    result_message = f'На {datetime.today().replace(microsecond=0)} ' \
+                     f'по игре {game} такие статы:\n'
+    for name, score in result_msg_dict.items():
+        result_message += name + ': ' + str(score) + '\n'
+
+    return result_message
