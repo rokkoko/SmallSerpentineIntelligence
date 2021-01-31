@@ -23,7 +23,6 @@ def create_app():
         Get stats data from incoming request body (sent by bot)
         and store it in database
         """
-
         app.logger.debug('Incoming bot request')
 
         if request.method == "POST":
