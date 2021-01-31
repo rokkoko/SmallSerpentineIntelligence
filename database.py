@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 import os
 import psycopg2
 import datetime as date
+from checks import negative_score_check
 
 # Use environment variables from .env file
 load_dotenv()
@@ -104,6 +105,11 @@ def add_scores(game, score_pairs):
     :param score_pairs: pairs of players and scores
     :return: done string
     """
+    try:
+        negative_score_check(score_pairs)
+    except ValueError:
+        return "Negative score isn't possible"
+
     cur = conn.cursor()
     game_id = add_game_into_db(game)
     game_session_id = add_game_session_into_db(game_id)
