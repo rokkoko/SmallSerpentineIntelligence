@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 import os
 import psycopg2
 import datetime as date
+from parse_message import parse_message
 
 # Use environment variables from .env file
 load_dotenv()
@@ -135,3 +136,30 @@ def add_scores(game, score_pairs):
     # return {'value1': str(result_msg_dict)}
 
     return result_msg_dict
+
+
+def stats_represent(game):
+    cur = conn.cursor()
+    game_id = add_game_into_db(game)
+    cur.execute('SELECT id FROM game_sessions WHERE game_id = %s;', (game_id,))
+    game_sessions_ids = tuple(cur.fetchall())
+    try:
+        cur.execute('SELECT user_id FROM scores WHERE game_session_id IN %s;', (game_sessions_ids,))
+    except Exception:
+        return 'В эту игру вы еще не шпилили'
+    user_ids = tuple(set(cur.fetchall()))
+
+    result_msg_dict = dict()
+    for id in user_ids:
+        cur.execute(
+            "SELECT user_name FROM users WHERE id = %s;", (id[0],)
+        )
+        user_name = cur.fetchone()[0]
+        cur.execute('SELECT SUM(score) FROM scores WHERE game_session_id IN %s AND user_id = %s;', (game_sessions_ids, id))
+        result_msg_dict[user_name] = int(cur.fetchone()[0])
+
+    result_message = f'На {date.datetime.today().replace(microsecond=0)} ' \
+                     f'по игре "{game}" ОБЩИЕ статы такие:\n'
+    for name, score in result_msg_dict.items():
+        result_message += name + ': ' + str(score) + '\n'
+    return result_message
