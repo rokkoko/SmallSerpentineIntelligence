@@ -21,6 +21,16 @@ conn = psycopg2.connect(
 conn.autocommit = True
 
 
+def get_game_id(game):
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT id FROM games WHERE game_name = (%(game)s);", {'game': game}
+    )
+    if cur.fetchone() is None:
+        return False
+    return cur.fetchone()[0]
+
+
 def add_game_into_db(game):
     """
     Adding game to DB and return it's id (int) from table. If game already in
@@ -140,4 +150,32 @@ def add_scores(game, score_pairs):
     print(result_msg_dict)
     # return {'value1': str(result_msg_dict)}
 
+    return result_msg_dict
+
+
+def stats_represent(game):
+    cur = conn.cursor()
+    game_id = get_game_id(game)
+    if not game_id:
+        return 'В эту игру вы еще не шпилили'
+
+    cur.execute('SELECT id FROM game_sessions WHERE game_id = %s;', (game_id,))
+    game_sessions_ids = tuple(cur.fetchall())
+    cur.execute(
+        'SELECT user_id FROM scores WHERE game_session_id IN %s;',
+        (game_sessions_ids,)
+    )
+    user_ids = tuple(set(cur.fetchall()))
+    result_msg_dict = dict()
+    for id in user_ids:
+        cur.execute(
+            "SELECT user_name FROM users WHERE id = %s;", (id[0],)
+        )
+        user_name = cur.fetchone()[0]
+        cur.execute(
+            'SELECT SUM(score) FROM scores '
+            'WHERE game_session_id IN %s AND user_id = %s;',
+            (game_sessions_ids, id)
+        )
+        result_msg_dict[user_name] = int(cur.fetchone()[0])
     return result_msg_dict
