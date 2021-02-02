@@ -26,9 +26,10 @@ def get_game_id(game):
     cur.execute(
         "SELECT id FROM games WHERE game_name = (%(game)s);", {'game': game}
     )
-    if cur.fetchone() is None:
+    result = cur.fetchone()
+    if result is None:
         return False
-    return cur.fetchone()[0]
+    return result[0]
 
 
 def add_game_into_db(game):
