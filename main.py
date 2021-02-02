@@ -4,6 +4,7 @@ from parse_message import parse_message
 from database import add_scores, stats_represent
 import json
 import requests
+import datetime as date
 
 IFTTT_TELEGRAM_BOT_URL = 'https://maker.ifttt.com/' \
                          'trigger/stats_updated/with/' \
@@ -13,10 +14,6 @@ IFTTT_TELEGRAM_BOT_URL = 'https://maker.ifttt.com/' \
 def create_app():
     app = Flask('stats')
 
-    # TODO Здесь приходит запрос вида
-    #  {"value": "Червяки: Егор 1, Саша 5, Сергей 0"}. Нам нужно достать
-    #  строку из value, и распарсить ее с помощью parse_message,
-    #  чтобы можно было подготовить данные для запросов в базу данных.
     @app.route('/webhooks/stats', methods=['POST'])
     def process_bot_message():
         """
@@ -32,15 +29,32 @@ def create_app():
                 game, score_pairs = parse_message(data)
             except (ValueError, TypeError):
                 game = parse_message(data)
-                result = stats_represent(game)
+                score_pairs = stats_represent(game)
+                if isinstance(score_pairs, str):
+                    no_such_game_msg = score_pairs
+                    post_response_to_telegram(no_such_game_msg)
+                    return 'Done!'
+                elif isinstance(score_pairs, dict):
+                    result_dict = score_pairs
+                    case = 'общие статы ВСЕХ игрокококов такие'
             else:
-                result = add_scores(game, score_pairs)
+                result_dict = add_scores(game, score_pairs)
+                case = 'статы для текущих игрококов'
+                if isinstance(result_dict, str):
+                    negative_score_msg = result_dict
+                    post_response_to_telegram(negative_score_msg)
+                    return 'Done!'
 
             app.logger.debug('Parsed message', game, score_pairs)
 
-            post_response_to_telegram(result)
+            result_msg = f'На {date.datetime.today().replace(microsecond=0)} ' \
+                         f'по игре "{game}" {case}:\n'
+            for user_name, score in result_dict.items():
+                result_msg += user_name + ': ' + str(score) + '\n'
 
-            return 'Done'
+            post_response_to_telegram(result_msg)
+
+            return 'Done!'
 
     def post_response_to_telegram(data):
         """
@@ -48,7 +62,7 @@ def create_app():
         данных, этой функцией можно послать ответ в Телеграм. Ответ здесь
         должен быть подготовленной строкой со вставленными данными
         """
-        requests.post(url=IFTTT_TELEGRAM_BOT_URL, data={"value1": str(data)})
+        requests.post(url=IFTTT_TELEGRAM_BOT_URL, data={"value1": data})
 
     return app
 

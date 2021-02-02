@@ -178,9 +178,4 @@ def stats_represent(game):
             (game_sessions_ids, id)
         )
         result_msg_dict[user_name] = int(cur.fetchone()[0])
-
-    result_message = f'На {date.datetime.today().replace(microsecond=0)} ' \
-                     f'по игре "{game}" ОБЩИЕ статы такие:\n'
-    for name, score in result_msg_dict.items():
-        result_message += name + ': ' + str(score) + '\n'
-    return result_message
+    return result_msg_dict
