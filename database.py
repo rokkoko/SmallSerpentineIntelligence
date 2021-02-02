@@ -2,7 +2,6 @@ from dotenv import load_dotenv
 import os
 import psycopg2
 import datetime as date
-from parse_message import parse_message
 from checks import negative_score_check
 
 # Use environment variables from .env file
@@ -20,6 +19,16 @@ conn = psycopg2.connect(
     host=os.getenv("DB_HOST"))
 
 conn.autocommit = True
+
+
+def get_game_id(game):
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT id FROM games WHERE game_name = (%(game)s);", {'game': game}
+    )
+    if cur.fetchone() is None:
+        return False
+    return cur.fetchone()[0]
 
 
 def add_game_into_db(game):
@@ -146,18 +155,17 @@ def add_scores(game, score_pairs):
 
 def stats_represent(game):
     cur = conn.cursor()
-    game_id = add_game_into_db(game)
+    game_id = get_game_id(game)
+    if not game_id:
+        return 'В эту игру вы еще не шпилили'
+
     cur.execute('SELECT id FROM game_sessions WHERE game_id = %s;', (game_id,))
     game_sessions_ids = tuple(cur.fetchall())
-    try:
-        cur.execute(
-            'SELECT user_id FROM scores WHERE game_session_id IN %s;',
-            (game_sessions_ids,)
-        )
-    except Exception:
-        return 'В эту игру вы еще не шпилили'
+    cur.execute(
+        'SELECT user_id FROM scores WHERE game_session_id IN %s;',
+        (game_sessions_ids,)
+    )
     user_ids = tuple(set(cur.fetchall()))
-
     result_msg_dict = dict()
     for id in user_ids:
         cur.execute(
