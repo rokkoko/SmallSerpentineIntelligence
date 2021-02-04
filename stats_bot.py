@@ -39,7 +39,6 @@ def echo(update: Update, context: CallbackContext) -> None:
 
 def stats_command(update: Update, context: CallbackContext) -> None:
     data = ' '.join(context.args)
-    case = ''
     try:
         game, score_pairs = parse_message(data)
     except (ValueError, TypeError):
@@ -48,6 +47,8 @@ def stats_command(update: Update, context: CallbackContext) -> None:
         if isinstance(score_pairs, str):
             no_such_game_msg = score_pairs
             update.message.reply_text(no_such_game_msg)
+            case = None
+            result_dict = None
         elif isinstance(score_pairs, dict):
             result_dict = score_pairs
             case = 'общие статы ВСЕХ игрокококов такие'
