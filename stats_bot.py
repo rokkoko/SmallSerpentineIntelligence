@@ -47,8 +47,7 @@ def stats_command(update: Update, context: CallbackContext) -> None:
         if isinstance(score_pairs, str):
             no_such_game_msg = score_pairs
             update.message.reply_text(no_such_game_msg)
-            case = None
-            result_dict = None
+            return
         elif isinstance(score_pairs, dict):
             result_dict = score_pairs
             case = 'общие статы ВСЕХ игрокококов такие'
@@ -58,6 +57,7 @@ def stats_command(update: Update, context: CallbackContext) -> None:
         if isinstance(result_dict, str):
             negative_score_msg = result_dict
             update.message.reply_text(negative_score_msg)
+            return
 
     result_msg = f'На {date.datetime.today().replace(microsecond=0)} ' \
                  f'по игре "{game}" {case}:\n'
