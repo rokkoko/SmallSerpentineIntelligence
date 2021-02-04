@@ -39,6 +39,7 @@ def echo(update: Update, context: CallbackContext) -> None:
 
 def stats_command(update: Update, context: CallbackContext) -> None:
     data = ' '.join(context.args)
+    case = ''
     try:
         game, score_pairs = parse_message(data)
     except (ValueError, TypeError):
