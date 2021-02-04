@@ -21,6 +21,15 @@ conn = psycopg2.connect(
 conn.autocommit = True
 
 
+def get_user_name(user_id_nested_array):
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT user_name FROM users WHERE id = %s;", (user_id_nested_array[0],)
+    )
+    user_name = cur.fetchone()[0]
+    return user_name
+
+
 def get_game_id(game):
     cur = conn.cursor()
     cur.execute(
@@ -160,23 +169,21 @@ def stats_represent(game):
     if not game_id:
         return 'В эту игру вы еще не шпилили'
 
-    cur.execute('SELECT id FROM game_sessions WHERE game_id = %s;', (game_id,))
-    game_sessions_ids = tuple(cur.fetchall())
-    cur.execute(
-        'SELECT user_id FROM scores WHERE game_session_id IN %s;',
-        (game_sessions_ids,)
-    )
-    user_ids = tuple(set(cur.fetchall()))
+    cur.execute('SELECT DISTINCT user_id FROM scores JOIN game_sessions '
+                'ON scores.game_session_id = game_sessions.id '
+                'WHERE game_sessions.id IN '
+                '(SELECT id FROM game_sessions WHERE game_id = %s);', (game_id,))
+    user_ids = cur.fetchall()
+
     result_msg_dict = dict()
-    for id in user_ids:
-        cur.execute(
-            "SELECT user_name FROM users WHERE id = %s;", (id[0],)
-        )
-        user_name = cur.fetchone()[0]
+    for user_id in user_ids:
+        user_name = get_user_name(user_id)
         cur.execute(
             'SELECT SUM(score) FROM scores '
-            'WHERE game_session_id IN %s AND user_id = %s;',
-            (game_sessions_ids, id)
+            'WHERE game_session_id IN '
+            '(SELECT id FROM game_sessions WHERE game_id = %s) '
+            'AND user_id = %s;',
+            (game_id, user_id)
         )
         result_msg_dict[user_name] = int(cur.fetchone()[0])
     return result_msg_dict
