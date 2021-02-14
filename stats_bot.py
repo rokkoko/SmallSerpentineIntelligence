@@ -1,40 +1,21 @@
-import logging
-from dotenv import load_dotenv
-import os
 import datetime as date
-
-from telegram import Update
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
-
-# Use environment variables from .env file
 from database import stats_represent, add_scores
 from parse_message import parse_message
-
-load_dotenv()
-
-# Enable logging
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
-)
-
-logger = logging.getLogger(__name__)
+from telegram import Bot, Update
+from telegram.ext import Dispatcher, CommandHandler, CallbackContext
 
 
-# Define a few command handlers. These usually take the two arguments update and
-# context. Error handlers also receive the raised TelegramError object in error.
-def start(update: Update, context: CallbackContext) -> None:
-    """Send a message when the command /start is issued."""
-    update.message.reply_text('Hi!')
+class StatsBot:
+    def __init__(self, token):
+        self.bot = Bot(token)
+        self.dispatcher = Dispatcher(self.bot, None, workers=0)
+        self.dispatcher.add_handler(CommandHandler("stats", stats_command))
 
-
-def help_command(update: Update, context: CallbackContext) -> None:
-    """Send a message when the command /help is issued."""
-    update.message.reply_text('Help!')
-
-
-def echo(update: Update, context: CallbackContext) -> None:
-    """Echo the user message."""
-    update.message.reply_text(update.message.text)
+    def process_update(self, request):
+        update = Update.de_json(request, self.bot)
+        print('Update decoded', update.update_id)
+        self.dispatcher.process_update(update)
+        print('Stats request processed successfully', update.update_id)
 
 
 def stats_command(update: Update, context: CallbackContext) -> None:
@@ -65,23 +46,3 @@ def stats_command(update: Update, context: CallbackContext) -> None:
         result_msg += user_name + ': ' + str(score) + '\n'
 
     update.message.reply_text(result_msg)
-
-
-if __name__ == '__main__':
-    token = os.getenv("STATS_BOT_TOKEN")
-    port = int(os.environ.get('PORT', '8443'))
-
-    updater = Updater(token)
-    dispatcher = updater.dispatcher
-
-    dispatcher.add_handler(CommandHandler("stats", stats_command))
-
-    # updater.start_polling()
-
-    updater.start_webhook(listen="0.0.0.0",
-                          port=port,
-                          url_path=token)
-
-    updater.bot.set_webhook("https://kokostats.herokuapp.com/" + token)
-
-    updater.idle()

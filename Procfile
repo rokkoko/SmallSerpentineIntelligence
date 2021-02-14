@@ -1,1 +1,1 @@
-web: python stats_bot.py
+web: gunicorn 'main:create_app()'
