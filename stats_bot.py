@@ -5,44 +5,34 @@ from telegram import Bot, Update
 from telegram.ext import Dispatcher, CommandHandler, CallbackContext
 
 
+def is_bot_added_first_time_update(message):
+    return 'new_chat_member' in message and message['new_chat_member']['is_bot'] is True and message['new_chat_member'][
+        'username'] == 'testKukarebot'
+
+
 class StatsBot:
     def __init__(self, token):
-        self.bot = Bot(token)
+        self.bot = Bot('1641912008:AAHfo1PWpj4pRPEmazJjIgiAwtHTTgH5pmM')
         self.dispatcher = Dispatcher(self.bot, None, workers=0)
-        self.dispatcher.add_handler(CommandHandler("stats", stats_command))
+        self.dispatcher.add_handler(CommandHandler("test", test_command))
 
     def process_update(self, request):
         update = Update.de_json(request, self.bot)
         print('Update decoded', update.update_id)
+
+        # Types?
+        if is_bot_added_first_time_update(request['message']):
+            self.bot.send_message(chat_id=update.effective_chat.id, text='Привет! Я бот, который ведет статистику. '
+                                                                         'Например, сколько раз вы играли в Червяков '
+                                                                         'или сколько отжиманий сделали только что.')
+
+            self.bot.send_message(chat_id=update.effective_chat.id, text='Чтобы я вас узнал, пришлите мне сообщение, '
+                                                                         'например, "@testKukarebot Привет!"')
+
         self.dispatcher.process_update(update)
         print('Stats request processed successfully', update.update_id)
 
 
-def stats_command(update: Update, context: CallbackContext) -> None:
-    data = ' '.join(context.args)
-    try:
-        game, score_pairs = parse_message(data)
-    except (ValueError, TypeError):
-        game = parse_message(data)
-        score_pairs = stats_represent(game)
-        if isinstance(score_pairs, str):
-            no_such_game_msg = score_pairs
-            update.message.reply_text(no_such_game_msg)
-            return
-        elif isinstance(score_pairs, dict):
-            result_dict = score_pairs
-            case = 'общие статы ВСЕХ игрокококов такие'
-    else:
-        result_dict = add_scores(game, score_pairs)
-        case = 'статы для текущих игрококов'
-        if isinstance(result_dict, str):
-            negative_score_msg = result_dict
-            update.message.reply_text(negative_score_msg)
-            return
-
-    result_msg = f'На {date.datetime.today().replace(microsecond=0)} ' \
-                 f'по игре "{game}" {case}:\n'
-    for user_name, score in result_dict.items():
-        result_msg += user_name + ': ' + str(score) + '\n'
-
-    update.message.reply_text(result_msg)
+def test_command(update: Update, context: CallbackContext) -> None:
+    print(update.effective_chat.id)
+    context.bot.send_message(chat_id=update.effective_chat.id, text="I'm a bot, please talk to me!")

@@ -14,7 +14,8 @@ def create_app():
     app = Flask('stats')
     stats_bot = StatsBot(stats_bot_token)
 
-    @app.route('/webhooks/stats/' + stats_bot_token, methods=['POST'])
+    # @app.route('/webhooks/stats/' + stats_bot_token, methods=['POST'])
+    @app.route('/webhooks/stats', methods=['GET', 'POST'])
     def stats_webhook():
         print('Stats webhook request received')
         stats_bot.process_update(request.get_json(force=True))
@@ -30,4 +31,4 @@ def create_app():
 if __name__ == "__main__":
     server_app = create_app()
 
-    server_app.run(host='0.0.0.0', port=7001)
+    server_app.run(host='0.0.0.0', port=80)
