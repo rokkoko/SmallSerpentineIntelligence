@@ -15,6 +15,7 @@ class StatsBot:
         self.bot = Bot('1641912008:AAHfo1PWpj4pRPEmazJjIgiAwtHTTgH5pmM')
         self.dispatcher = Dispatcher(self.bot, None, workers=0)
         self.dispatcher.add_handler(CommandHandler("test", test_command))
+        self.dispatcher.add_handler(CommandHandler("register", register_command))
 
     def process_update(self, request):
         update = Update.de_json(request, self.bot)
@@ -26,13 +27,17 @@ class StatsBot:
                                                                          'Например, сколько раз вы играли в Червяков '
                                                                          'или сколько отжиманий сделали только что.')
 
-            self.bot.send_message(chat_id=update.effective_chat.id, text='Чтобы я вас узнал, пришлите мне сообщение, '
-                                                                         'например, "@testKukarebot Привет!"')
+            self.bot.send_message(chat_id=update.effective_chat.id, text='Чтобы я вас узнал, /register')
 
         self.dispatcher.process_update(update)
         print('Stats request processed successfully', update.update_id)
 
 
-def test_command(update: Update, context: CallbackContext) -> None:
+def test_command(update, context):
     print(update.effective_chat.id)
     context.bot.send_message(chat_id=update.effective_chat.id, text="I'm a bot, please talk to me!")
+
+
+def register_command(update: Update, context: CallbackContext):
+    telegram_user = context.bot.get_chat_member(update.effective_chat.id, update.effective_user.id)
+    print(telegram_user)
