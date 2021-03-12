@@ -41,6 +41,16 @@ def get_game_id(game):
     return result[0]
 
 
+def get_game_names_list():
+    """
+    Return list of names of all games in db.
+    """
+    cur = conn.cursor()
+    cur.execute('SELECT game_name FROM games;')
+    game_names_list = [i[0] for i in cur.fetchall()]
+    return game_names_list
+
+
 def add_game_into_db(game):
     """
     Adding game to DB and return it's id (int) from table. If game already in
@@ -64,7 +74,6 @@ def add_game_into_db(game):
         "SELECT id FROM games WHERE game_name = (%(game)s);", {'game': game}
     )
     return cur.fetchone()[0]
-
 
 def add_users_into_db(score_pairs):
     """
@@ -166,6 +175,7 @@ def add_scores(game, score_pairs):
 def stats_represent(game):
     cur = conn.cursor()
     game_id = get_game_id(game)
+    # TODO this "if-not" - block unnecessary because of bot_filtering
     if not game_id:
         return 'В эту игру вы еще не шпилили'
 
