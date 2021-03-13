@@ -42,12 +42,12 @@ class StatsBot:
 
 def add_stats_command(update, context: CallbackContext):
     msg_text = f'Добавить статы для активности (уже зарегистрированные: {", ".join(get_game_names_list())})'
-    update.message.reply_text(msg_text, reply_markup=ForceReply())
+    update.message.reply_text(msg_text, reply_markup=ForceReply(selective=True))
+
 
 def show_stats_command(update, context: CallbackContext):
-    # TODO We should make a request for games to get the list for hint, hardcoding for now
     msg_text = f'Показать статы для активности (уже зарегистрированные: {", ".join(get_game_names_list())})'
-    update.message.reply_text(msg_text, reply_markup=ForceReply())
+    update.message.reply_text(msg_text, reply_markup=ForceReply(selective=True))
 
 
 def process_show_stats_message(update, context: CallbackContext):
