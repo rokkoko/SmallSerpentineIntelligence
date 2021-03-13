@@ -47,7 +47,7 @@ def add_stats_command(update, context: CallbackContext):
 def show_stats_command(update, context: CallbackContext):
     # TODO We should make a request for games to get the list for hint, hardcoding for now
     msg_text = f'Показать статы для активности (уже зарегистрированные: {", ".join(get_game_names_list())})'
-    update.message.reply_text("Показать статы (Червяки, Рэпп, Поводили)", reply_markup=ForceReply())
+    update.message.reply_text(msg_text, reply_markup=ForceReply())
 
 
 def process_show_stats_message(update, context: CallbackContext):
