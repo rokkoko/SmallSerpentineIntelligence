@@ -175,9 +175,6 @@ def add_scores(game, score_pairs):
 def stats_represent(game):
     cur = conn.cursor()
     game_id = get_game_id(game)
-    # TODO this "if-not" - block unnecessary because of bot_filtering
-    if not game_id:
-        return 'В эту игру вы еще не шпилили'
 
     cur.execute('SELECT DISTINCT user_id FROM scores JOIN game_sessions '
                 'ON scores.game_session_id = game_sessions.id '
