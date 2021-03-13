@@ -40,12 +40,13 @@ class StatsBot:
 
 
 def add_stats_command(update, context: CallbackContext):
-    update.message.reply_text("Добавить статы (уже есть Червяки, Рэпп, Поводили)", reply_markup=ForceReply())
+    update.message.reply_text("Добавить статы (уже есть Червяки, Рэпп, Поводили)",
+                              reply_markup=ForceReply(selective=True))
 
 
 def show_stats_command(update, context: CallbackContext):
     # TODO We should make a request for games to get the list for hint, hardcoding for now
-    update.message.reply_text("Показать статы (Червяки, Рэпп, Поводили)", reply_markup=ForceReply())
+    update.message.reply_text("Показать статы (Червяки, Рэпп, Поводили)", reply_markup=ForceReply(selective=True))
 
 
 def process_show_stats_message(update, context: CallbackContext):
