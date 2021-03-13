@@ -12,7 +12,6 @@ class ScoresMessageFilter(UpdateFilter):
 
 class ShowKnownStatsMessageFilter(UpdateFilter):
     def filter(self, update):
-        # TODO In this case we won't be able to get answer "В эту игру вы еще не шпили". This type of answer should add in "except" of bot-filetring  behavior
         game = parse_message(update.message.text)
         return True if get_game_id(game) else False
 
