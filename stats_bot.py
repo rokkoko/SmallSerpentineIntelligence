@@ -26,31 +26,17 @@ class StatsBot:
         self.dispatcher = Dispatcher(self.bot, None, workers=0)
         self.dispatcher.add_handler(CommandHandler("add", add_stats_command))
         self.dispatcher.add_handler(CommandHandler("show", show_stats_command))
-        # self.dispatcher.add_handler(
-        #     MessageHandler(activity_scores_message_filter & ~Filters.command, process_add_stats_message))
-        # self.dispatcher.add_handler(
-        #     MessageHandler(known_activity_message_filter & ~activity_scores_message_filter & ~Filters.command,
-        #                    process_show_stats_message))
-        # self.dispatcher.add_handler(
-        #     MessageHandler(~known_activity_message_filter & ~activity_scores_message_filter & ~Filters.command & ~Filters.animation & ~Filters.text,
-        #                    process_unknown_message))
-
-
-
+        self.dispatcher.add_handler(
+            MessageHandler(activity_scores_message_filter & ~Filters.command, process_add_stats_message))
+        self.dispatcher.add_handler(
+            MessageHandler(known_activity_message_filter & ~activity_scores_message_filter & ~Filters.command,
+                           process_show_stats_message))
+        self.dispatcher.add_handler(
+            MessageHandler(~known_activity_message_filter & ~activity_scores_message_filter & ~Filters.command & ~Filters.animation & ~Filters.text,
+                           process_unknown_message))
         self.dispatcher.add_handler(
             MessageHandler(
-                Filters.animation & (~Filters.command) & (~Filters.text), animation_callback
-            )
-        )
-
-        # self.dispatcher.add_handler(
-        #     MessageHandler(
-        #         Filters.text & ~known_activity_message_filter & ~activity_scores_message_filter & ~Filters.command, test
-        #     )
-        # )
-        self.dispatcher.add_handler(
-            MessageHandler(
-                Filters.text & (~Filters.command) & (~Filters.animation), test
+                Filters.animation & (~activity_scores_message_filter) & (~known_activity_message_filter), animation_callback
             )
         )
 
@@ -59,10 +45,6 @@ class StatsBot:
         print('Update decoded', update.update_id)
         self.dispatcher.process_update(update)
         print('Stats request processed successfully', update.update_id)
-
-
-def test(update, context):
-    update.message.reply_text('ПАРСИНГ СООБЩЕНИЙ РАБОТАЕТ')
 
 
 def animation_callback(update, context):
