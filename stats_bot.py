@@ -38,7 +38,7 @@ class StatsBot:
 
         self.dispatcher.add_handler(
             MessageHandler(
-                Filters.animation & (~Filters.command), animation_callback
+                Filters.animation, animation_callback
             )
         )
 
