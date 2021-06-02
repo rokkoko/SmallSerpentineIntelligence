@@ -32,17 +32,21 @@ class StatsBot:
             MessageHandler(known_activity_message_filter & ~activity_scores_message_filter & ~Filters.command,
                            process_show_stats_message))
         self.dispatcher.add_handler(
-            MessageHandler(~known_activity_message_filter & ~activity_scores_message_filter & ~Filters.command,
+            MessageHandler(~known_activity_message_filter & ~activity_scores_message_filter & ~Filters.command & ~Filters.animation & ~Filters.text,
                            process_unknown_message))
+
+
 
         self.dispatcher.add_handler(
             MessageHandler(
-                Filters.animation & ~known_activity_message_filter & ~activity_scores_message_filter & ~Filters.command, animation_callback
+                Filters.animation & ~known_activity_message_filter & ~activity_scores_message_filter & ~Filters.command & ~Filters.text, animation_callback
             )
         )
 
         self.dispatcher.add_handler(
-            MessageHandler(Filters.text, callback=test)
+            MessageHandler(
+                Filters.text & ~known_activity_message_filter & ~activity_scores_message_filter & ~Filters.command, test
+            )
         )
 
     def process_update(self, request):
