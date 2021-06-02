@@ -26,30 +26,25 @@ class StatsBot:
         self.dispatcher = Dispatcher(self.bot, None, workers=0)
         self.dispatcher.add_handler(CommandHandler("add", add_stats_command))
         self.dispatcher.add_handler(CommandHandler("show", show_stats_command))
-        # self.dispatcher.add_handler(
-        #     MessageHandler(activity_scores_message_filter & ~Filters.command, process_add_stats_message))
-        # self.dispatcher.add_handler(
-        #     MessageHandler(known_activity_message_filter & ~activity_scores_message_filter & ~Filters.command,
-        #                    process_show_stats_message))
-        # self.dispatcher.add_handler(
-        #     MessageHandler(~known_activity_message_filter & ~activity_scores_message_filter & ~Filters.command & ~Filters.animation & ~Filters.text,
-        #                    process_unknown_message))
+        self.dispatcher.add_handler(
+            MessageHandler(activity_scores_message_filter & ~Filters.command, process_add_stats_message))
+        self.dispatcher.add_handler(
+            MessageHandler(known_activity_message_filter & ~activity_scores_message_filter & ~Filters.command,
+                           process_show_stats_message))
+        self.dispatcher.add_handler(
+            MessageHandler(~known_activity_message_filter & ~activity_scores_message_filter & ~Filters.command & ~Filters.animation & ~Filters.text,
+                           process_unknown_message))
 
 
         self.dispatcher.add_handler(
             MessageHandler(
-                Filters.animation, animation_callback
+                Filters.animation & (~Filters.command), animation_callback
             )
         )
 
-        # self.dispatcher.add_handler(
-        #     MessageHandler(
-        #         Filters.text & (~activity_scores_message_filter) & (~known_activity_message_filter), test
-        #     )
-        # )
         self.dispatcher.add_handler(
             MessageHandler(
-                Filters.text, test
+                Filters.text & (~activity_scores_message_filter) & (~known_activity_message_filter) & (~Filters.command), test
             )
         )
 
