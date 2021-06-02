@@ -39,7 +39,7 @@ class StatsBot:
 
         self.dispatcher.add_handler(
             MessageHandler(
-                Filters.animation & (~Filters.command), animation_callback
+                Filters.animation & (~Filters.command) & (~Filters.text), animation_callback
             )
         )
 
@@ -50,7 +50,7 @@ class StatsBot:
         # )
         self.dispatcher.add_handler(
             MessageHandler(
-                Filters.text & (~Filters.command), test
+                Filters.text & (~Filters.command) & (~Filters.animation), test
             )
         )
 
