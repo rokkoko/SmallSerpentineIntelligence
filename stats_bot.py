@@ -43,9 +43,14 @@ class StatsBot:
             )
         )
 
+        # self.dispatcher.add_handler(
+        #     MessageHandler(
+        #         Filters.text & ~known_activity_message_filter & ~activity_scores_message_filter & ~Filters.command, test
+        #     )
+        # )
         self.dispatcher.add_handler(
             MessageHandler(
-                Filters.text & ~known_activity_message_filter & ~activity_scores_message_filter & ~Filters.command, test
+                Filters.text, test
             )
         )
 
