@@ -36,7 +36,7 @@ class StatsBot:
                            process_unknown_message))
         self.dispatcher.add_handler(
             MessageHandler(
-                Filters.animation & (~activity_scores_message_filter) & (~known_activity_message_filter), animation_callback
+                Filters.animation, animation_callback
             )
         )
 
