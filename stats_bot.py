@@ -41,11 +41,18 @@ class StatsBot:
             )
         )
 
+        self.dispatcher.add_handler(
+            MessageHandler(callback=test)
+        )
+
     def process_update(self, request):
         update = Update.de_json(request, self.bot)
         print('Update decoded', update.update_id)
         self.dispatcher.process_update(update)
         print('Stats request processed successfully', update.update_id)
+
+def test(update, context):
+    update.message.reply_text('ПАРСИНГ СООБЩЕНИЙ РАБОТАЕТ')
 
 
 def animation_callback(update, context):
