@@ -42,7 +42,7 @@ class StatsBot:
         )
 
         self.dispatcher.add_handler(
-            MessageHandler(callback=test)
+            MessageHandler(Filters.text, callback=test)
         )
 
     def process_update(self, request):
@@ -50,6 +50,7 @@ class StatsBot:
         print('Update decoded', update.update_id)
         self.dispatcher.process_update(update)
         print('Stats request processed successfully', update.update_id)
+
 
 def test(update, context):
     update.message.reply_text('ПАРСИНГ СООБЩЕНИЙ РАБОТАЕТ')
