@@ -35,7 +35,11 @@ class StatsBot:
             MessageHandler(~known_activity_message_filter & ~activity_scores_message_filter & ~Filters.command,
                            process_unknown_message))
 
-        self.dispatcher.add_handler(MessageHandler(Filters.animation, animation_callback))
+        self.dispatcher.add_handler(
+            MessageHandler(
+                Filters.animation & ~known_activity_message_filter & ~activity_scores_message_filter & ~Filters.command, animation_callback
+            )
+        )
 
     def process_update(self, request):
         update = Update.de_json(request, self.bot)
