@@ -35,11 +35,28 @@ class StatsBot:
             MessageHandler(~known_activity_message_filter & ~activity_scores_message_filter & ~Filters.command,
                            process_unknown_message))
 
+        self.dispatcher.add_handler(MessageHandler(Filters.animation, animation_callback))
+
     def process_update(self, request):
         update = Update.de_json(request, self.bot)
         print('Update decoded', update.update_id)
         self.dispatcher.process_update(update)
         print('Stats request processed successfully', update.update_id)
+
+
+def animation_callback(update, context):
+    user_name = update.message.from_user.username
+    game_name = 'Botyara'
+    score_pair = {user_name: 1}
+    update.message.reply_text(f"Статы (+1) ботяры '{user_name}' занесены в Метрику")
+    result_dict = add_scores(game_name, score_pair)
+
+    result_msg = f'На {date.datetime.today().replace(microsecond=0)} ' \
+                 f' БОТЯРЫ имеют следующие статы:\n'
+    for user_name, score in result_dict.items():
+        result_msg += user_name + ': ' + str(score) + '\n'
+
+    update.message.reply_text(result_msg)
 
 
 def add_stats_command(update, context):
