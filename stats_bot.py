@@ -7,7 +7,11 @@ from telegram.ext import Dispatcher, CommandHandler, CallbackContext, MessageHan
 
 class ScoresMessageFilter(UpdateFilter):
     def filter(self, update):
-        return ':' in update.message.text
+        try:
+            result = ':' in update.message.text
+            return result
+        except TypeError:
+            return
 
 
 class KnownStatsMessageFilter(UpdateFilter):
