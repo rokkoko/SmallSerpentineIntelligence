@@ -16,15 +16,6 @@ class KnownStatsMessageFilter(UpdateFilter):
         return True if get_game_id(game) else False
 
 
-# class KnownStatsMessageFilter(UpdateFilter):
-#     def filter(self, update):
-#         try:
-#             game = parse_message(update.message.text)
-#             return True if get_game_id(game) else False
-#         except TypeError:
-#             return
-
-
 class ReplyToMessageFilter(UpdateFilter):
     def filter(self, update):
         return bool(update.message.reply_to_message)
@@ -43,24 +34,39 @@ class StatsBot:
         self.dispatcher.add_handler(CommandHandler("show", show_stats_command))
         self.dispatcher.add_handler(
             MessageHandler(
-                ~Filters.animation & activity_scores_message_filter & reply_to_message_filter & ~Filters.command, process_add_stats_message
+                ~Filters.animation &
+                activity_scores_message_filter &
+                reply_to_message_filter &
+                ~Filters.command,
+                process_add_stats_message
             )
         )
         self.dispatcher.add_handler(
             MessageHandler(
-                ~Filters.animation & known_activity_message_filter & reply_to_message_filter & ~activity_scores_message_filter & ~Filters.animation,
-                           process_show_stats_message
+                ~Filters.animation &
+                known_activity_message_filter &
+                reply_to_message_filter &
+                ~activity_scores_message_filter &
+                ~Filters.animation,
+                process_show_stats_message
             )
         )
         self.dispatcher.add_handler(
             MessageHandler(
-                ~Filters.animation & ~known_activity_message_filter & reply_to_message_filter & ~activity_scores_message_filter & ~Filters.command,
-                           process_unknown_message
+                ~Filters.animation &
+                ~known_activity_message_filter &
+                reply_to_message_filter &
+                ~activity_scores_message_filter &
+                ~Filters.command,
+                process_unknown_message
             )
         )
         self.dispatcher.add_handler(
             MessageHandler(
-                Filters.animation & ~reply_to_message_filter & ~Filters.command, animation_callback
+                Filters.animation &
+                ~reply_to_message_filter &
+                ~Filters.command,
+                animation_callback
             )
         )
 
