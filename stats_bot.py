@@ -79,7 +79,7 @@ class StatsBot:
 
 def animation_callback(update, context):
     user_name = update.message.from_user.username
-    game_name = 'Botyara'
+    game_name = 'Ботяра'
     score_pair = {user_name: 1}
     update.message.reply_text(f"Статы (+1) ботяры '{user_name}' занесены в Метрику")
     result_dict = add_scores(game_name, score_pair)
