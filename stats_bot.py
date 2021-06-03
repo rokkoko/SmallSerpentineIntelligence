@@ -16,8 +16,11 @@ class ScoresMessageFilter(UpdateFilter):
 
 class KnownStatsMessageFilter(UpdateFilter):
     def filter(self, update):
-        game = parse_message(update.message.text)
-        return True if get_game_id(game) else False
+        try:
+            game = parse_message(update.message.text)
+            return True if get_game_id(game) else False
+        except TypeError:
+            return
 
 
 class ReplyToMessageFilter(UpdateFilter):
