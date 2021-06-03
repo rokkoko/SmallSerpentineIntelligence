@@ -12,11 +12,17 @@ class ScoresMessageFilter(UpdateFilter):
 
 class KnownStatsMessageFilter(UpdateFilter):
     def filter(self, update):
-        try:
-            game = parse_message(update.message.text)
-            return True if get_game_id(game) else False
-        except TypeError:
-            return
+        game = parse_message(update.message.text)
+        return True if get_game_id(game) else False
+
+
+# class KnownStatsMessageFilter(UpdateFilter):
+#     def filter(self, update):
+#         try:
+#             game = parse_message(update.message.text)
+#             return True if get_game_id(game) else False
+#         except TypeError:
+#             return
 
 
 class ReplyToMessageFilter(UpdateFilter):
@@ -42,19 +48,19 @@ class StatsBot:
         )
         self.dispatcher.add_handler(
             MessageHandler(
-                known_activity_message_filter & reply_to_message_filter & ~activity_scores_message_filter & ~Filters.command,
+                known_activity_message_filter & reply_to_message_filter & ~activity_scores_message_filter & ~Filters.command  & ~Filters.animation,
                            process_show_stats_message
             )
         )
         self.dispatcher.add_handler(
             MessageHandler(
-                ~known_activity_message_filter & reply_to_message_filter & ~activity_scores_message_filter & ~Filters.command,
+                ~known_activity_message_filter & reply_to_message_filter & ~activity_scores_message_filter & ~Filters.command & ~Filters.animation,
                            process_unknown_message
             )
         )
         self.dispatcher.add_handler(
             MessageHandler(
-                Filters.animation & ~known_activity_message_filter & ~reply_to_message_filter & ~activity_scores_message_filter & ~Filters.command, animation_callback
+                Filters.animation & ~reply_to_message_filter & ~Filters.command, animation_callback
             )
         )
 
