@@ -43,18 +43,18 @@ class StatsBot:
         self.dispatcher.add_handler(CommandHandler("show", show_stats_command))
         self.dispatcher.add_handler(
             MessageHandler(
-                activity_scores_message_filter & reply_to_message_filter & ~Filters.command & ~Filters.animation, process_add_stats_message
+                ~Filters.animation & activity_scores_message_filter & reply_to_message_filter & ~Filters.command, process_add_stats_message
             )
         )
         self.dispatcher.add_handler(
             MessageHandler(
-                known_activity_message_filter & reply_to_message_filter & ~activity_scores_message_filter & ~Filters.command  & ~Filters.animation,
+                ~Filters.animation & known_activity_message_filter & reply_to_message_filter & ~activity_scores_message_filter & ~Filters.animation,
                            process_show_stats_message
             )
         )
         self.dispatcher.add_handler(
             MessageHandler(
-                ~known_activity_message_filter & reply_to_message_filter & ~activity_scores_message_filter & ~Filters.command & ~Filters.animation,
+                ~Filters.animation & ~known_activity_message_filter & reply_to_message_filter & ~activity_scores_message_filter & ~Filters.command,
                            process_unknown_message
             )
         )
