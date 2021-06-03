@@ -16,6 +16,12 @@ class KnownStatsMessageFilter(UpdateFilter):
         return True if get_game_id(game) else False
 
 
+class ReplyToMessageFilter(UpdateFilter):
+    def filter(self, update):
+        return bool(update.message.reply_to_message)
+
+
+reply_to_message_filter = ReplyToMessageFilter()
 activity_scores_message_filter = ScoresMessageFilter()
 known_activity_message_filter = KnownStatsMessageFilter()
 
@@ -24,27 +30,28 @@ class StatsBot:
     def __init__(self, token):
         self.bot = Bot(token)
         self.dispatcher = Dispatcher(self.bot, None, workers=0)
-        # self.dispatcher.add_handler(CommandHandler("add", add_stats_command))
-        # self.dispatcher.add_handler(CommandHandler("show", show_stats_command))
-        # self.dispatcher.add_handler(
-        #     MessageHandler(activity_scores_message_filter & ~Filters.command, process_add_stats_message))
-        # self.dispatcher.add_handler(
-        #     MessageHandler(known_activity_message_filter & ~activity_scores_message_filter & ~Filters.command,
-        #                    process_show_stats_message))
-        # self.dispatcher.add_handler(
-        #     MessageHandler(~known_activity_message_filter & ~activity_scores_message_filter & ~Filters.command & ~Filters.animation & ~Filters.text,
-        #                    process_unknown_message))
-
-
+        self.dispatcher.add_handler(CommandHandler("add", add_stats_command))
+        self.dispatcher.add_handler(CommandHandler("show", show_stats_command))
+        self.dispatcher.add_handler(
+            MessageHandler(
+                activity_scores_message_filter & reply_to_message_filter & ~Filters.command, process_add_stats_message
+            )
+        )
+        self.dispatcher.add_handler(
+            MessageHandler(
+                known_activity_message_filter & reply_to_message_filter & ~activity_scores_message_filter & ~Filters.command,
+                           process_show_stats_message
+            )
+        )
+        self.dispatcher.add_handler(
+            MessageHandler(
+                ~known_activity_message_filter & reply_to_message_filter & ~activity_scores_message_filter & ~Filters.command,
+                           process_unknown_message
+            )
+        )
         self.dispatcher.add_handler(
             MessageHandler(
                 Filters.animation, animation_callback
-            )
-        )
-
-        self.dispatcher.add_handler(
-            MessageHandler(
-                Filters.text & (~Filters.command), test
             )
         )
 
@@ -54,10 +61,6 @@ class StatsBot:
         print('Update decoded', update.update_id)
         self.dispatcher.process_update(update)
         print('Stats request processed successfully', update.update_id)
-
-
-def test(update, context):
-    update.message.reply_text('PARSING WORKS')
 
 
 def animation_callback(update, context):
