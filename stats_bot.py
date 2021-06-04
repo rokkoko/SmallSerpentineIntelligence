@@ -37,7 +37,7 @@ class StatsBot:
         self.dispatcher.add_handler(CommandHandler("show", show_stats_command))
         self.dispatcher.add_handler(
             MessageHandler(
-                ~Filters.animation &
+                (~Filters.animation | ~Filters.sticker) &
                 activity_scores_message_filter &
                 reply_to_message_filter &
                 ~Filters.command,
