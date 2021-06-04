@@ -38,6 +38,7 @@ class StatsBot:
         self.dispatcher.add_handler(
             MessageHandler(
                 ~Filters.animation &
+                ~Filters.sticker &
                 activity_scores_message_filter &
                 reply_to_message_filter &
                 ~Filters.command,
@@ -47,6 +48,7 @@ class StatsBot:
         self.dispatcher.add_handler(
             MessageHandler(
                 ~Filters.animation &
+                ~Filters.sticker &
                 known_activity_message_filter &
                 reply_to_message_filter &
                 ~activity_scores_message_filter &
@@ -57,6 +59,7 @@ class StatsBot:
         self.dispatcher.add_handler(
             MessageHandler(
                 ~Filters.animation &
+                ~Filters.sticker &
                 ~known_activity_message_filter &
                 reply_to_message_filter &
                 ~activity_scores_message_filter &
@@ -66,7 +69,7 @@ class StatsBot:
         )
         self.dispatcher.add_handler(
             MessageHandler(
-                Filters.animation &
+                (Filters.animation | Filters.sticker) &
                 ~reply_to_message_filter &
                 ~Filters.command,
                 animation_callback
