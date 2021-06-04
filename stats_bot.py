@@ -66,7 +66,7 @@ class StatsBot:
         )
         self.dispatcher.add_handler(
             MessageHandler(
-                Filters.animation &
+                (Filters.animation | Filters.sticker) &
                 ~reply_to_message_filter &
                 ~Filters.command,
                 animation_callback
